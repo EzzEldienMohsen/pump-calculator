@@ -70,9 +70,11 @@ export default {
       pump: {
         title: 'Pumps',
         pumpCount: 'Number of Pumps',
+        pumpType: 'Pump Type',
         suctionSize: 'Suction Size (inches)',
         suctionPlaceholder: 'Example: 1, 1 1/4, 2, 3',
         selectCount: 'Select count',
+        selectType: 'Select pump type',
         calculate: 'Calculate Pump Price',
         pumpLabel: {
           one: '1 Pump',

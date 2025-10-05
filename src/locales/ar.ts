@@ -70,9 +70,11 @@ export default {
       pump: {
         title: 'المضخات',
         pumpCount: 'عدد المضخات',
+        pumpType: 'نوع المضخة',
         suctionSize: 'قطر السحب (بوصة)',
         suctionPlaceholder: 'مثال: 1, 1 1/4, 2, 3',
         selectCount: 'اختر العدد',
+        selectType: 'اختر نوع المضخة',
         calculate: 'احسب سعر المضخات',
         pumpLabel: {
           one: '1 مضخة',

@@ -12,6 +12,9 @@ interface PumpCalculatorProps {
   setPumpCount: (value: string) => void;
   suctionSize: string;
   setSuctionSize: (value: string) => void;
+  pumpType: string;
+  setPumpType: (value: string) => void;
+  availablePumpTypes: string[];
   onCalculate: () => void;
   calculatedPrice: number | null;
   details: PumpDetails | null;
@@ -25,6 +28,9 @@ const PumpCalculator: React.FC<PumpCalculatorProps> = ({
   setPumpCount,
   suctionSize,
   setSuctionSize,
+  pumpType,
+  setPumpType,
+  availablePumpTypes,
   onCalculate,
   calculatedPrice,
   details
@@ -52,6 +58,27 @@ const PumpCalculator: React.FC<PumpCalculatorProps> = ({
             min="1"
           />
         </div>
+
+        {/* Pump Type Dropdown (only if multiple types available) */}
+        {availablePumpTypes.length > 1 && (
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">{t('calculator.pump.pumpType')}</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={pumpType}
+              onChange={(e) => setPumpType(e.target.value)}
+            >
+              <option value="">{t('calculator.pump.selectType')}</option>
+              {availablePumpTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Suction Size Input */}
         <div>

@@ -40,6 +40,47 @@ export const normalizeCell = (cell: unknown): string => {
 };
 
 /**
+ * Normalizes size values to handle fractions and decimals consistently
+ * All values are converted to decimal format for comparison
+ * Examples: "1 1/2", "11/2", "1-1/2", "1.5" all become "1.5"
+ * Examples: "1 1/4", "11/4", "1.25" all become "1.25"
+ */
+export const normalizeSizeValue = (value: string | number): string => {
+  // Convert to string and remove special characters
+  let normalized = String(value).replace(/[Ø"]/g, '').trim();
+
+  // If already a decimal number, return as is
+  const decimalPattern = /^\d+(\.\d+)?$/;
+  if (decimalPattern.test(normalized)) {
+    return parseFloat(normalized).toString();
+  }
+
+  // Handle fractions: "1 1/2" or "11/2" or "1-1/2" → "1.5"
+  const fractionPattern = /^(\d+)\s*[-\s]?\s*(\d+)\/(\d+)$/;
+  const match = normalized.match(fractionPattern);
+
+  if (match) {
+    const whole = parseInt(match[1]);
+    const numerator = parseInt(match[2]);
+    const denominator = parseInt(match[3]);
+    return (whole + numerator / denominator).toString();
+  }
+
+  // Simple fraction: "1/2" → "0.5", "1/4" → "0.25"
+  const simpleFractionPattern = /^(\d+)\/(\d+)$/;
+  const simpleMatch = normalized.match(simpleFractionPattern);
+
+  if (simpleMatch) {
+    const numerator = parseInt(simpleMatch[1]);
+    const denominator = parseInt(simpleMatch[2]);
+    return (numerator / denominator).toString();
+  }
+
+  // No fraction, return as-is
+  return normalized;
+};
+
+/**
  * Checks if a row contains a specific value
  */
 export const rowContains = (row: Array<string | number>, searchValue: string): boolean => {
@@ -48,14 +89,19 @@ export const rowContains = (row: Array<string | number>, searchValue: string): b
 };
 
 /**
- * Extracts numeric price from a row
+ * Extracts numeric price from a row (returns the LARGEST number above threshold)
  */
 export const extractPriceFromRow = (row: Array<string | number>, minThreshold: number = 100): number | null => {
+  let maxPrice: number | null = null;
+
   for (const cell of row) {
     const numValue = parseFloat(String(cell || '').replace(/[^0-9.]/g, ''));
     if (!isNaN(numValue) && numValue > minThreshold) {
-      return numValue;
+      if (maxPrice === null || numValue > maxPrice) {
+        maxPrice = numValue;
+      }
     }
   }
-  return null;
+
+  return maxPrice;
 };

@@ -41,14 +41,21 @@ export const calculatePanelPrice = (
   for (const row of panelTableData) {
     const rowStr = row.map(cell => String(cell || '')).join(' ').toLowerCase();
 
-    // Check if row matches pump count
-    const hasPumpCount = rowStr.includes(panelPumpCount);
+    // Check if row matches pump count (must have "pump" context or be standalone number)
+    const hasPumpCount =
+      rowStr.includes(`${panelPumpCount} pump`) ||
+      rowStr.includes(`${panelPumpCount}pump`) ||
+      (rowStr.startsWith(panelPumpCount + ' ') || rowStr.startsWith(panelPumpCount + '\t'));
 
     // Check if row matches motor power
     const hasMotorPower = matchesMotorPower(row, motorPower);
 
-    // Check if row matches panel type
-    const hasPanelType = rowStr.includes(panelType.toLowerCase());
+    // Check if row matches panel type (more strict matching)
+    const normalizedPanelType = panelType.toLowerCase().replace(/\s+/g, '');
+    const normalizedRowStr = rowStr.replace(/\s+/g, '');
+    const hasPanelType =
+      rowStr.includes(panelType.toLowerCase()) ||
+      normalizedRowStr.includes(normalizedPanelType);
 
     // If all conditions match, we found the row
     if (hasPumpCount && hasMotorPower && hasPanelType) {
@@ -60,6 +67,15 @@ export const calculatePanelPrice = (
   // If matching row found, extract price
   if (foundRow) {
     const price = extractPriceFromRow(foundRow, MIN_PRICE_THRESHOLD);
+
+    // Debug logging
+    console.log('🔌 Panel Match Found:', {
+      panelPumpCount,
+      motorPower,
+      panelType,
+      matchedRow: foundRow,
+      extractedPrice: price
+    });
 
     if (price !== null) {
       return {
@@ -74,6 +90,7 @@ export const calculatePanelPrice = (
         }
       };
     } else {
+      console.warn('⚠️ Panel row matched but no price found:', foundRow);
       return {
         success: false,
         error: ERROR_MESSAGES.NO_PRICE_FOUND

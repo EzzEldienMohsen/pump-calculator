@@ -9,7 +9,7 @@
  * - View total combined pricing
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DollarSign, Zap, Calculator } from 'lucide-react';
 
@@ -27,7 +27,7 @@ import Instructions from './components/Instructions';
 import { processExcelFile } from './utils/fileProcessors/excelProcessor';
 import { processWordFile } from './utils/fileProcessors/wordProcessor';
 import { processPDFFile } from './utils/fileProcessors/pdfProcessor';
-import { calculatePumpPrice as calcPumpPrice } from './utils/priceCalculators/pumpPriceCalculator';
+import { calculatePumpPrice as calcPumpPrice, getAvailablePumpTypes } from './utils/priceCalculators/pumpPriceCalculator';
 import { calculatePanelPrice as calcPanelPrice } from './utils/priceCalculators/panelPriceCalculator';
 import { downloadTemplate } from './utils/templateGenerator';
 import { exportToExcel } from './utils/excelExporter';
@@ -95,6 +95,8 @@ export default function App() {
   // Pump calculator state
   const [pumpCount, setPumpCount] = useState<string>('');
   const [suctionSize, setSuctionSize] = useState<string>('');
+  const [pumpType, setPumpType] = useState<string>('');
+  const [availablePumpTypes, setAvailablePumpTypes] = useState<string[]>([]);
   const [calculatedPumpPrice, setCalculatedPumpPrice] = useState<number | null>(null);
   const [pumpDetails, setPumpDetails] = useState<PumpDetails | null>(null);
 
@@ -110,6 +112,26 @@ export default function App() {
 
   // Margin state
   const [margin, setMargin] = useState<string>('');
+
+  /**
+   * Update available pump types when pump count changes
+   */
+  useEffect(() => {
+    if (pumpCount && pumpTableData.length > 0) {
+      const types = getAvailablePumpTypes(pumpTableData, pumpCount);
+      setAvailablePumpTypes(types);
+
+      // Auto-select if only one type available
+      if (types.length === 1) {
+        setPumpType(types[0]);
+      } else {
+        setPumpType(''); // Reset selection if multiple types
+      }
+    } else {
+      setAvailablePumpTypes([]);
+      setPumpType('');
+    }
+  }, [pumpCount, pumpTableData]);
 
   /**
    * Processes uploaded file based on file type
@@ -210,7 +232,7 @@ export default function App() {
    */
   const handleCalculatePumpPrice = (): void => {
     setError('');
-    const result = calcPumpPrice(pumpTableData, pumpCount, suctionSize);
+    const result = calcPumpPrice(pumpTableData, pumpCount, suctionSize, pumpType || undefined);
 
     if (result.success && result.price !== undefined && result.details) {
       setCalculatedPumpPrice(result.price);
@@ -349,6 +371,9 @@ export default function App() {
                     setPumpCount={setPumpCount}
                     suctionSize={suctionSize}
                     setSuctionSize={setSuctionSize}
+                    pumpType={pumpType}
+                    setPumpType={setPumpType}
+                    availablePumpTypes={availablePumpTypes}
                     onCalculate={handleCalculatePumpPrice}
                     calculatedPrice={calculatedPumpPrice}
                     details={pumpDetails}

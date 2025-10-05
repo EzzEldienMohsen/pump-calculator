@@ -69,6 +69,13 @@ export const processPDFFile = async (file: File): Promise<FileProcessResult> => 
     // Extract data rows
     const data = allRows.slice(1).filter(row => row.length > 0);
 
+    // Debug: Log extracted table structure
+    console.log('📄 PDF Extraction - Full Table:', {
+      totalRows: allRows.length,
+      headers,
+      sampleRows: data.slice(0, 10)
+    });
+
     return { headers, data };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'errors.unknownError';

@@ -7,13 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Languages, Palette } from 'lucide-react';
 
-const THEMES = [
-  'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate',
-  'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden',
-  'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black',
-  'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade',
-  'night', 'coffee', 'winter'
-];
+const THEMES = ['light', 'dark'];
 
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
